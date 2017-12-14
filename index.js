@@ -30,13 +30,13 @@ function filterActivities(activities, club) {
     const SEVEN_DAYS = 1000 * 60 * 60 * 24 * 7;
     const isStale = (new Date(activity.start_date).getTime()) <= (new Date().getTime() - SEVEN_DAYS);
 
-    // Filter out activities from blocked athletes.
-    const isBlocked = _.includes(club.blocklist || [], activity.athlete.id);
+    // Only show activities from whitelisted athletes.
+    const isWhiteListed = _.includes(club.whitelist || [], activity.athlete.id);
 
     // Filter out bike commutes.
     const isBikeCommute = activity.type === 'Bike' && activity.commute;
 
-    return isNew && !isStale && !isBlocked && !isBikeCommute;
+    return isNew && !isStale && isWhiteListed && !isBikeCommute;
   });
 }
 
