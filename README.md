@@ -4,6 +4,10 @@ fitbot posts Strava activity to Slack.
 
 ![http://i.imgur.com/2yvGuyL.jpg](http://i.imgur.com/2yvGuyL.jpg)
 
+## Fork of fitbot that uses a whitelist instead of a blocklist
+
+This is a fork of fitbot with one minor change. Instead of specifying a blocklist to prevent certain users from having their activities post, there is a whitelist to specify which users should have their activities posted. You must specify the Strava user IDs for every user that wants their activities posted.
+
 ## Installation
 
 1. fitbot is a NodeJS module. You'll need to install that first. More information can be found [here](https://nodejs.org/en/download/package-manager/).
@@ -35,7 +39,7 @@ webhook needed to post them to Slack. Here is an example of the format:
   {
     "id": 1234,
     "webhook": "https://hooks.slack.com/services/XXXX/XXXX/XXXX",
-    "blocklist": []
+    "whitelist": []
   }
 ]
 ```
@@ -45,7 +49,7 @@ example: `https://www.strava.com/clubs/123456`.
 
 `webhook` is a Slack incoming webhook. You can find more information on how to set these up [here](https://api.slack.com/incoming-webhooks).
 
-`blocklist` is a list of athlete IDs that should not have their activities posted to Slack.
+`whitelist` is a list of athlete IDs that should have their activities posted to Slack.
 
 ### `strava_token` (Default: "")
 This is a Strava API token. You can get one of these by creating a new Strava API application. More information on how to do that can be found [here](https://www.strava.com/settings/api)
