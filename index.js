@@ -21,7 +21,7 @@ const EMOJI = {
   'Swim': ':swimmer:',
 };
 
-function filterActivities(activities, club) {
+function filterActivities(activities) {
   return activities.filter(function(activity) {
     // Filter out activities we've already seen.
     const isNew = !db.get('activities').find({id: activity.id}).value();
@@ -30,38 +30,33 @@ function filterActivities(activities, club) {
     const SEVEN_DAYS = 1000 * 60 * 60 * 24 * 7;
     const isStale = (new Date(activity.start_date).getTime()) <= (new Date().getTime() - SEVEN_DAYS);
 
-    // Only show activities from whitelisted athletes.
-    const isWhiteListed = _.includes(club.whitelist || [], activity.athlete.id);
-
-    // Filter out bike commutes.
-    const isBikeCommute = activity.type === 'Bike' && activity.commute;
-
-    return isNew && !isStale && isWhiteListed && !isBikeCommute;
+    return isNew && !isStale;
   });
 }
 
 function checkForNewActivities(initial) {
   initial = !!initial
 
-  config.strava_clubs.forEach(function(club) {
-    strava.clubs.listActivities({
+  config.athletes.forEach(function(athlete) {
+    // Get activities from the athlete.
+    strava.athlete.listActivities({
       access_token: config.strava_token,
       per_page: 200,
-      id: club.id,
+      id: athlete,
     }, function(error, activities) {
       if (error) {
-        return logger.error('Error listing activities', {error: error, club: club});
+        return logger.error('Error listing activities', { error: error, athlete: athlete});
       }
 
       if (!activities || !activities.length) {
-        return logger.info('No activities found', {response: activities, club: club.id});
+        return logger.info('No activities found', { response: activities, athlete: athlete});
       }
 
-      const newActivities = filterActivities(activities, club);
+      const newActivities = filterActivities(activities);
 
       logger.info('Checked for activities', {
         count: newActivities.length,
-        club: club.id,
+        athlete: athlete,
         initial: initial
       });
 
@@ -69,16 +64,18 @@ function checkForNewActivities(initial) {
       // any activities. This makes it safe to start fitbot without bombing a
       // channel with messages.
       if (!initial) {
-        newActivities.forEach(function(summary) {
-          strava.activities.get({
+        newActivities.forEach(function(activity) {
+
+          // Get athlete details.
+          strava.athlete.get({
             access_token: config.strava_token,
-            id: summary.id
-          }, function(error, activity) {
+            id: activity.athlete.id
+          }, function(error, athlete) {
             if (error) {
-              return logger.error('Error fetching activity details', {error: error, activity: summary});
+              return logger.error('Error fetching athlete details', { error: error, athlete: athlete});
             }
 
-            postActivityToSlack(club.webhook, summary.athlete, activity);
+            postActivityToSlack(config.webhook, athlete, activity);
           });
         });
       }
@@ -116,7 +113,7 @@ function postActivityToSlack(webhook, athlete, activity) {
 }
 
 function formatActivity(athlete, activity) {
-  const emoji = EMOJI[activity.type];
+  const emoji = EMOJI[activity.type] || '';
   const who = util.format('%s %s', dingProtect(athlete.firstname), dingProtect(athlete.lastname));
   const link = util.format('<https://www.strava.com/activities/%d>', activity.id);
   const distance = Math.round((activity.distance * 0.00062137) * 100) / 100; // Convert to miles /o\

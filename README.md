@@ -4,9 +4,11 @@ fitbot posts Strava activity to Slack.
 
 ![http://i.imgur.com/2yvGuyL.jpg](http://i.imgur.com/2yvGuyL.jpg)
 
-## Fork of fitbot that uses a whitelist instead of a blocklist
+## Fork of fitbot that includes athletes by ID rather than using Strava clubs
 
-This is a fork of fitbot with one minor change. Instead of specifying a blocklist to prevent certain users from having their activities post, there is a whitelist to specify which users should have their activities posted. You must specify the Strava user IDs for every user that wants their activities posted.
+This is a fork of fitbot with one minor change. Instead of loading activities from clubs, and therefore requiring athletes to be in the club, you specify a list of athlete IDs to get activities from.
+
+NOTE: If you are interested in a fork that still uses the Strava clubs, but uses an athlete whitelist instead of blacklist, check out the branch `club-whitelist` on my fork.
 
 ## Installation
 
@@ -30,26 +32,24 @@ Next, update the configuration for your purposes. Here are what the various opti
 ### `activity_check_interval` (Default: 60000)
 This is how often fitbot will check Strava for new activity, measured in milliseconds. You probably don't want to use too small of a number, or else you'll run into Strava API rate limits.
 
-### `strava_clubs` (Default: [])
-This is an array of the Strava clubs in which to look for activities, and the corresponding
+### `athletes` (Default: [])
+This is an array of the Strava athlete IDs in which to look for activities, and the corresponding
 webhook needed to post them to Slack. Here is an example of the format:
 
 ```json
-[
-  {
-    "id": 1234,
-    "webhook": "https://hooks.slack.com/services/XXXX/XXXX/XXXX",
-    "whitelist": []
-  }
-]
+"athletes": [
+  391930,
+  12652439
+],
 ```
 
-`id` is the ID of the Strava club. This can be a bit challenging to figure out. A simple way to find it is to go to the webpage for the Strava club, and then click the `Club Leaderboard` link. You'll be taken to a new webapge whose URL contains the club's ID. For
-example: `https://www.strava.com/clubs/123456`.
+### `webhook` is a Slack incoming webhook. You can find more information on how to set these up [here](https://api.slack.com/incoming-webhooks).
 
-`webhook` is a Slack incoming webhook. You can find more information on how to set these up [here](https://api.slack.com/incoming-webhooks).
+Example format:
 
-`whitelist` is a list of athlete IDs that should have their activities posted to Slack.
+```json
+"webhook": "https://hooks.slack.com/services/XXXX/XXXX/XXXX",
+```
 
 ### `strava_token` (Default: "")
 This is a Strava API token. You can get one of these by creating a new Strava API application. More information on how to do that can be found [here](https://www.strava.com/settings/api)
