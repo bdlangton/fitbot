@@ -38,8 +38,8 @@ webhook needed to post them to Slack. Here is an example of the format:
 
 ```json
 "athletes": [
-  391930,
-  12652439
+  12345,
+  123456
 ],
 ```
 
