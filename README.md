@@ -8,6 +8,8 @@ fitbot posts Strava activity to Slack.
 
 This is a fork of fitbot with one minor change. Instead of loading activities from clubs, and therefore requiring athletes to be in the club, you specify a list of athlete IDs to get activities from.
 
+NOTE: This will only post user activities if that user has authorized your Strava app access. Otherwise, you need to use the original fitbot, or my branch `club-whitelist`.
+
 NOTE: If you are interested in a fork that still uses the Strava clubs, but uses an athlete whitelist instead of blacklist, check out the branch `club-whitelist` on my fork.
 
 ## Installation
