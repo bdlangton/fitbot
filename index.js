@@ -175,11 +175,22 @@ function formatActivity(athlete, activity) {
   const emoji = EMOJI[activity.type];
   const who = util.format('%s %s', dingProtect(athlete.firstname), dingProtect(athlete.lastname));
   const link = util.format('<https://www.strava.com/activities/%d>', activity.id);
-  const distance = Math.round((activity.distance * 0.00062137) * 100) / 100; // Convert to miles /o\
+  let quantity = 0;
+  let units = '';
+  if (activity.distance > 0) {
+    quantity = (Math.round((activity.distance * 0.00062137) * 100) / 100) + ' miles';
+  }
+  else {
+    quantity = 'for ' + (new Date(activity.moving_time * 1000).toISOString().substr(11, 8));
+  }
   const verb = VERBS[activity.type] || activity.type;
+  let description = emoji;
+  if (activity.description) {
+    description += ' "' + activity.description + '"';
+  }
 
-  const message = '%s %s %d miles! %s %s %s %s';
-  return util.format(message, who, verb, distance, emoji, activity.name, emoji, link);
+  const message = '%s %s %s! %s %s %s %s';
+  return util.format(message, who, verb, quantity, emoji, activity.name, description, link);
 }
 
 function dingProtect(string) {
