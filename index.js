@@ -125,17 +125,8 @@ function checkForNewActivities(initial) {
       // any activities. This makes it safe to start fitbot without bombing a
       // channel with messages.
       if (!initial) {
-        newActivities.forEach(function(summary) {
-          strava.activities.get({
-            access_token: config.strava_token,
-            id: summary.id
-          }, function(error, activity) {
-            if (error) {
-              return logger.error('Error fetching activity details', {error: error, activity: summary});
-            }
-
-            postActivityToSlack(club.webhook, summary.athlete, activity);
-          });
+        newActivities.forEach(function(activity) {
+          postActivityToSlack(club.webhook, activity.athlete, activity);
         });
       }
 
