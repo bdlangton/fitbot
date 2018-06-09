@@ -80,19 +80,15 @@ const EMOJI = {
 function filterActivities(activities, club) {
   return activities.filter(function(activity) {
     // Filter out activities we've already seen.
-    const isNew = !db.get('activities').find({id: activity.id}).value();
-
-    // Filter out activities that are more than 7 days old.
-    const SEVEN_DAYS = 1000 * 60 * 60 * 24 * 7;
-    const isStale = (new Date(activity.start_date).getTime()) <= (new Date().getTime() - SEVEN_DAYS);
+    const isNew = !db.get('activities').find({name: activity.name, distance: activity.distance}).value();
 
     // Only show activities from whitelisted athletes.
-    const isWhiteListed = _.includes(club.whitelist || [], activity.athlete.id);
+    const isWhiteListed = _.includes(club.whitelist || [], activity.athlete.firstname + ' ' + activity.athlete.lastname);
 
     // Filter out bike commutes.
     const isBikeCommute = activity.type === 'Bike' && activity.commute;
 
-    return isNew && !isStale && isWhiteListed && !isBikeCommute;
+    return isNew && isWhiteListed && !isBikeCommute;
   });
 }
 
@@ -131,7 +127,7 @@ function checkForNewActivities(initial) {
       }
 
       newActivities.forEach(function(activity) {
-        db.get('activities').push({id: activity.id}).write();
+        db.get('activities').push({name: activity.name, distance: activity.distance}).write();
       });
     });
   });
@@ -165,7 +161,6 @@ function postActivityToSlack(webhook, athlete, activity) {
 function formatActivity(athlete, activity) {
   const emoji = EMOJI[activity.type];
   const who = util.format('%s %s', dingProtect(athlete.firstname), dingProtect(athlete.lastname));
-  const link = util.format('<https://www.strava.com/activities/%d>', activity.id);
   let quantity = 0;
   let units = '';
   if (activity.distance > 0) {
@@ -175,13 +170,9 @@ function formatActivity(athlete, activity) {
     quantity = 'for ' + (new Date(activity.moving_time * 1000).toISOString().substr(11, 8));
   }
   const verb = VERBS[activity.type] || activity.type;
-  let description = emoji;
-  if (activity.description) {
-    description += ' "' + activity.description + '"';
-  }
 
-  const message = '%s %s %s! %s %s %s %s';
-  return util.format(message, who, verb, quantity, emoji, activity.name, description, link);
+  const message = '%s %s %s! %s %s %s';
+  return util.format(message, who, verb, quantity, emoji, activity.name, emoji);
 }
 
 function dingProtect(string) {

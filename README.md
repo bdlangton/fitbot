@@ -6,7 +6,7 @@ fitbot posts Strava activity to Slack.
 
 ## Fork of fitbot that uses a whitelist instead of a blocklist
 
-This is a fork of fitbot with one minor change. Instead of specifying a blocklist to prevent certain users from having their activities post, there is a whitelist to specify which users should have their activities posted. You must specify the Strava user IDs for every user that wants their activities posted.
+This is a fork of fitbot with one change. Instead of specifying a blocklist to prevent certain users from having their activities post, there is a whitelist to specify which users should have their activities posted. You must specify the Strava user first name and last initial for every user that wants their activities posted. See below for a config example.
 
 ## Installation
 
@@ -37,9 +37,9 @@ webhook needed to post them to Slack. Here is an example of the format:
 ```json
 [
   {
-    "id": 1234,
-    "webhook": "https://hooks.slack.com/services/XXXX/XXXX/XXXX",
-    "whitelist": []
+    "id": 12345,
+    "webhook": "https://hooks.slack.com/services/XXXXX/XXXXXX/XXXXXXXXXXX",
+    "whitelist": ["Bob T.", "Jane S."]
   }
 ]
 ```
@@ -49,7 +49,7 @@ example: `https://www.strava.com/clubs/123456`.
 
 `webhook` is a Slack incoming webhook. You can find more information on how to set these up [here](https://api.slack.com/incoming-webhooks).
 
-`whitelist` is a list of athlete IDs that should have their activities posted to Slack.
+`whitelist` is a list of athlete names (First name and last initial) that should have their activities posted to Slack.
 
 ### `strava_token` (Default: "")
 This is a Strava API token. You can get one of these by creating a new Strava API application. More information on how to do that can be found [here](https://www.strava.com/settings/api)
@@ -70,6 +70,17 @@ This is the icon that fitbot will use when posting activities to Slack.
 > This prevents fitbot from alerting users when it posts to Slack.
 
 ## Changelog
+
+### `1.3.0`
+Strava made changes to their API so they don't give as much data on the API
+calls. This required a change to this bot. First, they don't show the timestamp
+of the activities, so we can't check if data is stale. This shouldn't be a big
+deal as the first time the script starts, it doesn't post old activities, but
+instead puts them in the db so we know not to ever post them. Strava also
+doesn't return the activity ID or athlete IDs. This means that we can't link to
+the activity within the post. Also, to determine activities that already have
+been posted, we have to go off the activity name + distance, which should be
+unique except in very rare instances.
 
 ### `1.2.0`
 `blocklist` option added for athletes who wish to be a part of a club but do not wish to have their activities posted to Slack.
