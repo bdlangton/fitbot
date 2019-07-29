@@ -18,7 +18,7 @@ const VERBS = {
   'Canoeing': 'canoed',
   'Crossfit': 'did a CrossFit WOD',
   'EBikeRide': 'rode an e-bike',
-  'Elliptical': 'used an elliptical',
+  'Elliptical': 'suffered on an elliptical',
   'Handcycle': 'handcycled',
   'Hike': 'hiked',
   'IceSkate': 'ice skated',
