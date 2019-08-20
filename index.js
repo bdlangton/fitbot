@@ -160,7 +160,7 @@ function postActivityToSlack(webhook, athlete, activity) {
 
 function formatActivity(athlete, activity) {
   const emoji = EMOJI[activity.type];
-  const who = util.format('%s %s', dingProtect(athlete.firstname), dingProtect(athlete.lastname));
+  const who = util.format('%s %s', dingProtect(athlete.firstname), athlete.lastname);
   let quantity = 0;
   let units = '';
   if (activity.distance > 0) {
